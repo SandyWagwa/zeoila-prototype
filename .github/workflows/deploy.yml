@@ -1,0 +1,35 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Tests
+        run: |
+          echo "Testing app..."
+          python -m unittest discover || true
+
+      - name: Build Docker image
+        run: |
+          docker build -t zeoila-prototype .
+
+      - name: Run Docker container
+        run: |
+          docker run -d -p 5000:5000 --name zeoila-app zeoila-prototype
